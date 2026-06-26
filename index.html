@@ -557,6 +557,7 @@
     <a href="#stage5">5 · MCP shared memory</a>
     <a href="#stage6">6 · Security &amp; routing</a>
     <a href="#specs">Qwen specs</a>
+    <a href="#sota">SOTA update '26</a>
     <a href="#roadmap">Roadmap</a>
     <a href="#cheatsheet">Cheat-sheet</a>
     <a href="#caveats">Caveats</a>
@@ -1036,6 +1037,103 @@ args = [<span class="str">"mcp-remote@latest"</span>, <span class="str">"--http"
       </div>
       <p style="margin-top:14px"><strong>Strengths:</strong> multilingual (200+ languages; the family spans 201 languages/dialects), strong coding/agentic benchmarks, native multimodal (text+image) in the 3.5 line, long context up to 256K (262,144 tokens), Apache-2.0. Thinking/non-thinking modes are switchable (reasoning off by default for the 0.8B–9B variants).</p>
       <div class="callout callout--caveat"><div class="ctag">◆ Caveat · the speed figures are extrapolations</div><p>No measured base-M4-16GB Qwen3.5 benchmark was found; a comparable <code>qwen3.5:9b</code> Q4 hit ~91 tok/s on a discrete RTX 4080 (far higher bandwidth). Qwen3.5 uses a hybrid Gated-DeltaNet + sparse-MoE architecture (the 9B is dense; 27B+ tags are MoE). Some early tooling had GGUF/vision (<code>mmproj</code>) quirks — verify the model loads and tool-calls correctly on your Ollama version.</p></div>
+    </section>
+
+    <!-- ===================== SOTA UPDATE (mid-2026) ===================== -->
+    <section id="sota">
+      <p class="kicker">The frontier · re-verified mid-2026</p>
+      <h2>SOTA update — what changed since this guide</h2>
+      <p class="lead">Everything above is the build path and it still holds. This is the <em>moving frontier</em> layered on top: what shipped after the core was written, what now beats the defaults, and where the honest ceiling moved. Every number was re-verified against primary sources and adversarially fact-checked — estimates are labelled, and a few widely-repeated claims that didn't survive verification are flagged inline.</p>
+
+      <h3>A · Models — newer than Qwen3.5, and the real 16GB contenders</h3>
+      <p><strong>"Qwen3.5" is not stale — it's the latest Qwen that fits.</strong> Qwen kept shipping: Qwen3.6 (27B dense + 35B-A3B MoE, Apr 2026) and Qwen3.7-Max (June 2026). But 3.6/3.7 have <strong>no small-dense tier</strong> — no 4B/8B/9B/14B — so the smallest Qwen that fits a 16GB Mac is still Qwen3.5. <code>qwen3.5:4b</code>/<code>:9b</code> remain the right local pick. The 9B's card also lists <strong>79.1 on TAU2-Bench</strong> alongside its 66.1 BFCL-V4 — a stronger multi-turn-agentic signal than single-turn BFCL.</p>
+      <div class="specgrid">
+        <div class="spec">
+          <h4>gpt-oss-20b <span style="font-weight:400;color:var(--ls-text-muted)">· OpenAI</span></h4>
+          <p class="role">New 16GB <em>reasoning</em> option. Run solo — leaves little room for a co-resident embedder + DB.</p>
+          <dl>
+            <dt>Arch</dt><dd>21B total / 3.6B active MoE</dd>
+            <dt>Size</dt><dd>~12–13 GB (native MXFP4)</dd>
+            <dt>License</dt><dd>Apache-2.0</dd>
+            <dt>Bench</dt><dd>GPQA-Diamond 66.0% (med) / 71.5% (high)</dd>
+          </dl>
+        </div>
+        <div class="spec">
+          <h4>Gemma 4 12B <span style="font-weight:400;color:var(--ls-text-muted)">· Google</span></h4>
+          <p class="role">June 2026, supersedes Gemma 3. QAT Q4_0 holds near-FP quality at the same footprint.</p>
+          <dl>
+            <dt>Size</dt><dd>~6.6 GB (Q4_K_M)</dd>
+            <dt>Context</dt><dd>256K · native tool-calling</dd>
+            <dt>Bench</dt><dd>77.2% MMLU-Pro <span style="font-weight:400;color:var(--ls-text-muted)">(estimate)</span></dd>
+          </dl>
+        </div>
+        <div class="spec">
+          <h4>Ministral-3-8B <span style="font-weight:400;color:var(--ls-text-muted)">· Mistral</span></h4>
+          <p class="role">Dec 2, 2025. Token-efficient (fewer output tokens = cheaper runs). Clean rival to <code>qwen3.5:9b</code>.</p>
+          <dl>
+            <dt>Size class</dt><dd>8B · 256K ctx</dd>
+            <dt>License</dt><dd>Apache-2.0</dd>
+            <dt>Variants</dt><dd>base / instruct / reasoning + image</dd>
+          </dl>
+        </div>
+        <div class="spec">
+          <h4>IBM Granite 4.0 <span style="font-weight:400;color:var(--ls-text-muted)">· Oct 2025</span></h4>
+          <p class="role">Mamba-2/transformer hybrid built for tool-use + RAG; big KV-cache savings on long retrieval contexts.</p>
+          <dl>
+            <dt>Fits</dt><dd>H-Micro 3B dense · H-Tiny 7B-A1B</dd>
+            <dt>License</dt><dd>Apache-2.0</dd>
+            <dt>Claim</dt><dd>&gt;70% less memory, ~2× faster (IBM)</dd>
+          </dl>
+        </div>
+      </div>
+      <p style="margin-top:14px"><strong>Best local tool-caller (16GB):</strong> <code>qwen3.5:9b</code> (66.1 BFCL-V4 / 79.1 TAU2), with <code>gpt-oss-20b</code> as the reasoning-heavy alternative. <strong>Best local coder (16GB):</strong> <strong>Qwen2.5-Coder-14B</strong> (~9 GB Q4, ~89% HumanEval, 128K ctx, and crucially <strong>fill-in-the-middle</strong> for editor autocomplete). The stronger Qwen3.6-35B-A3B coder (73.4% SWE-bench Verified) is a stretch — ~16.6 GB at Q3 with KV offload, no FIM. <strong>The ceiling barely moved:</strong> even the best <em>open</em> model tops BFCL-V4 at ~0.729 vs ~0.750 closed; a 9B at 0.661 is a real step down — which is why hard tool-use still escalates to Claude (Tier 3).</p>
+
+      <h3>B · Inference engines — what actually runs faster on a 16GB M4</h3>
+      <p><strong>Version stamp:</strong> Ollama is at <strong>v0.30.10</strong> (June 17, 2026). It now ships a real <strong>MLX backend — but that path still requires &gt;32 GB unified memory</strong>, so on a 16 GB M4 Ollama transparently falls back to the llama.cpp/Metal path. The MLX-only headlines (NVFP4, ~2× decode) <strong>don't apply to this box</strong> — the guide's exclusion was right; just version-stamp it.</p>
+      <p><strong>MLX vs llama.cpp on 16 GB, the honest version (estimates).</strong> For the 4B/9B class, <code>mlx-lm</code> is the measured decode leader — roughly <strong>+56%</strong> on Qwen2.5-7B 4-bit (≈63.7 vs 40.75 tok/s, M1 Max). But the popular "3× faster" figure is mostly Ollama's <em>own</em> overhead; the real MLX-over-raw-llama.cpp win is ~<strong>1.4–1.8×</strong>. Two caveats decide it: (1) MLX has <strong>no CPU/GPU layer offload</strong> — it loads the entire model or nothing, whereas llama.cpp's <code>n_gpu_layers</code> is "the difference between runs and crashes" when a model barely fits; (2) MLX's advantage <strong>inverts at long context</strong> — one test saw effective throughput collapse to ~3 tok/s at 8.5K ctx, and MLX runs ~50% slower than FlashAttention llama.cpp past ~30K — which directly hurts RAG/long-prompt agents.</p>
+      <div class="callout callout--note"><div class="ctag">📝 Verdict for a 16GB RAG/agent box</div><p>Default to a <strong>llama.cpp-based runtime (Ollama or LM Studio)</strong> for memory safety and long augmented prompts. Reach for <code>mlx-lm</code> / LM Studio's MLX engine only for short-prompt interactive or agent loops where the ~1.5× decode win is real and the prompt stays small. <strong>Free throughput lever:</strong> LM Studio v0.4.17 added stable <strong>speculative decoding</strong> on Apple Silicon (MTP + draft-model, ~20–50% faster) — on 16 GB pair a <strong>4B target + sub-1B draft</strong> so both fit the budget. <code>mlx-lm</code> supports it natively too.</p></div>
+      <p><strong>Not for the 16 GB box:</strong> Ollama's MLX backend (needs &gt;32 GB) and vLLM/<code>vllm-metal</code> (~1.2× <em>slower</em> than llama.cpp single-stream — it exists for production batching/API parity, not single-user speed). vLLM does now run on Apple Silicon (community <code>vllm-metal</code> v0.2.0 + Docker Model Runner, OpenAI- <em>and</em> Anthropic-compatible) — useful on the <strong>Tier-2 box</strong> so one identical API surface spans the Mac (dev) and the RTX box (deploy).</p>
+
+      <h3>C · Quantization — Q4_K_M has been beaten on quality-per-byte</h3>
+      <p>Q4_K_M is still a safe floor, but three families beat it:</p>
+      <ul>
+        <li><strong>Unsloth Dynamic 2.0 GGUFs</strong> — per-layer mixed precision over an imatrix base: <strong>same file size and RAM</strong> as Q4_K_M but lower KL-divergence (closes ~⅓ of the Q4_K_M→Q5_K_M gap for free). Pull the <code>unsloth/…-GGUF</code> Dynamic build instead of a generic Q4_K_M.</li>
+        <li><strong>IQ4_XS</strong> (~4.25 bpw vs ~4.5) — near-identical perplexity, saves ~400 MB on a 9B. Reserve <strong>IQ3_XXS (~3.0 bpw, approximate)</strong> for genuine "won't fit otherwise" cases — a real step-down.</li>
+        <li><strong>MLX learned quantization (DWQ/AWQ/GPTQ)</strong> — the Apple-Silicon-native path. <strong>DWQ</strong> distills the quantized scales against the FP teacher; a 4-bit DWQ model can reach 6–8-bit quality at 4-bit size. Standalone <code>mlx-lm</code> fits the 16 GB budget even though the <em>Ollama-MLX backend</em> doesn't.</li>
+      </ul>
+      <div class="callout callout--gotcha"><div class="ctag">⚠ Gotcha · quantization hurts <em>thinking</em> modes more than chat</div><p>With Qwen3.5 reasoning enabled, quantized variants have been measured dropping as much as ~33% on some benchmarks, and quantization roughly <em>doubled</em> the answer-truncation rate (quantized models "think" longer and hit the max-token limit). If you rely on thinking mode, step up to Q5_K_M/Q6_K/8-bit for those calls <strong>or</strong> raise max-output-tokens — don't assume a 4-bit quant that chats fine will reason fine.</p></div>
+      <p><strong>KV-cache, refined.</strong> q8_0 KV (the guide's pick) is the right default. But Q4 is <em>asymmetric</em>: keys tolerate Q4, values don't — so to squeeze a 256K context onto 16 GB, use <strong>Q4 K-cache + Q8 V-cache</strong>, not symmetric Q4+Q4 (same VRAM, better quality; estimate). <strong>QAT &amp; ternary:</strong> Qwen3.5 ships <strong>official GPTQ-Int4</strong> (+ FP8/NVFP4) — AWQ exists only as <em>community</em> quants, not an official release. BitNet b1.58 ternary is real at 2B (~0.4 GB) but there's still <strong>no 7–9B ternary</strong> that competes with a quantized Qwen3.5-9B — an always-on cheap-agent tier, not a main-model replacement.</p>
+
+      <h3>D · Embeddings &amp; rerankers — the default changed, and you're missing a reranker</h3>
+      <p><strong>Switch the default.</strong> As of mid-2026 <code>nomic-embed-text</code> is no longer the best small embedder for local RAG. Prefer <strong>Qwen3-Embedding-0.6B</strong> (~639 MB, Apache-2.0): <strong>64.3 MTEB-Multilingual-v2</strong> (vs nomic's ~62), <strong>32K context</strong> (vs 8K), 100+ languages, and Matryoshka dims settable 32→1024 (truncate to shrink the Qdrant index ~2–4×). In one multilingual test it ranked the target chunk #1 where nomic ranked it #44 (single-source — directional, but nomic is English-trained). Tiniest footprint: <strong>EmbeddingGemma-300m</strong> (&lt;200 MB RAM quantized, 61.15 MTEB-v2) — but 2048-token ctx only, and it's <strong>Gemma-licensed, not Apache-2.0</strong>.</p>
+      <div class="code"><button class="copy">Copy</button><pre><span class="cmt"># new recommended embedder (Apache-2.0, 32K ctx, 100+ langs)</span>
+ollama pull qwen3-embedding:0.6b
+<span class="cmt"># tiniest footprint alternative (Gemma license, 2K ctx)</span>
+ollama pull embeddinggemma          <span class="cmt"># needs Ollama ≥ 0.11.10</span></pre></div>
+      <div class="callout callout--gotcha"><div class="ctag">⚠ Gotcha · Ollama has no native rerank endpoint</div><p>Add a reranker — it's the single highest-leverage RAG upgrade and the guide has none. Default: <strong>bge-reranker-v2-m3</strong> (568M, Apache-2.0, ~600 MB Q8_0 GGUF); modern alt: <strong>Qwen3-Reranker-0.6B</strong> (65.8 MTEB-R). But Ollama's rerank PR #7219 was <em>closed/abandoned</em> in Sept 2025 — run reranking through llama.cpp's <code>llama-server --reranking --pooling rank</code> as a small sidecar. Second trap: most community Qwen3-Reranker GGUFs emit garbage scores (~4.5e-23) unless converted with the official <code>convert_hf_to_gguf.py</code> (which extracts <code>cls.output.weight</code>). bge GGUFs convert cleanly — the lower-risk default. Budget ~0.6–1 GB; run it on-demand, not resident.</p></div>
+      <p><em>Scope note:</em> the genuine MTEB-Multilingual ceiling is 8B–12B embedders (NVIDIA Llama-Embed-Nemotron-8B tops the multilingual MMTEB leaderboard) — but an 8B embedder + a 9B chat model won't co-reside in ~9–12 GB. On this hardware, stop at the 0.6B–4B tier and add a reranker; push big embedders to the Tier-2 box.</p>
+
+      <h3>E · RAG methods — naive top-k is the floor, not the target</h3>
+      <p>The mid-2026 local-first default is a <strong>three-stage retrieve→fuse→rerank</strong> pipeline, all on the 16 GB box:</p>
+      <ol>
+        <li><strong>Hybrid search (dense + sparse).</strong> Index a dense vector <em>and</em> a sparse/keyword vector per chunk; Qdrant fuses them in one Query API call with <strong>Reciprocal Rank Fusion</strong>. Dense catches paraphrase; sparse catches exact identifiers, code symbols, rare terms. A config change — you already run Qdrant.</li>
+        <li><strong>Rerank the top ~20–50</strong> with the cross-encoder from §D; keep the top 5–10. Adds well under a second of latency on a few-thousand-chunk corpus.</li>
+        <li><strong>Contextual Retrieval (Anthropic) — the highest-leverage upgrade.</strong> Prepend an LLM-generated sentence situating each chunk in its parent doc, then index that in <em>both</em> the dense embedding and the BM25 index. Anthropic measured: contextual embeddings cut top-20 retrieval failures <strong>35%</strong>; + contextual BM25 → <strong>49%</strong>; + a reranker → <strong>67%</strong>.</li>
+      </ol>
+      <div class="callout callout--note"><div class="ctag">📝 Contextual Retrieval is a free lunch here</div><p>The catch is a one-time preprocessing pass — one LLM call per chunk. On a paid API Anthropic quotes ~$1.02/M doc tokens; <strong>here it's zero dollars</strong> — just <code>qwen3.5:4b</code> running an overnight batch. No query-time penalty, and it stacks on hybrid+rerank. <strong>Cheap cousins:</strong> <em>late chunking</em> (embed the whole doc in one pass, pool per-chunk after — needs a long-ctx embedder like Qwen3's 32K; ~3.6% nDCG, no extra LLM calls) and <em>HyDE, gated</em> (only when query–document similarity confidence is low).</p></div>
+      <p><strong>Three escalations, each with a real cost:</strong> <strong>Graph RAG</strong> for multi-hop questions — LightRAG / LazyGraphRAG fixed the economics (~0.1% of GraphRAG's indexing cost; build the graph with <code>qwen3.5:4b</code> overnight). <strong>Agentic / Self-RAG / CRAG</strong> for <em>robustness, not the default</em> — costs 3.3× input tokens / 1.5× latency for ~+2.8 NDCG, but Self-RAG had the lowest hallucination rate (5.8%); add a single retrieval-grading step for safety and push full query-planning to Tier 2/3. <strong>ColPali / ColQwen</strong> for PDFs &amp; scans — late-interaction vision retrievers; Qdrant stores the multivectors natively (enable ColBERTv2 residual quantization, 6–10× smaller). <strong>Measure it with RAGAS</strong> (judge LLM can be local Ollama) — but discount LLM-as-judge wins.</p>
+
+      <h3>F · Agentic memory — four camps, and your local model is the bottleneck</h3>
+      <p>The naive "embed → top-k → augment" store is the entry tier. By mid-2026 the field split into four structures: <strong>(1) lightweight-semantic</strong> (Mem0 / OpenMemory), <strong>(2) entity/temporal-graph</strong> (Zep's Graphiti — facts with <code>valid_at</code>/<code>invalid_at</code> windows so stale facts auto-supersede), <strong>(3) episodic-reflective</strong> (A-Mem, a Zettelkasten note-graph), <strong>(4) hierarchical memory-blocks</strong> (Letta, the MemGPT successor — the model edits an OS-style memory hierarchy via tool calls). Start at tier 1 (Mem0 OSS + Qdrant + Ollama); graduate only if you need temporal invalidation or self-editing memory.</p>
+      <div class="callout callout--gotcha"><div class="ctag">⚠ Gotcha · your local model is the bottleneck, not the library</div><p>Memory quality is dominated by the model doing the <em>extraction</em>, not the framework. The "Anatomy of Agentic Memory" survey measured Qwen-2.5-3B at a <strong>43% lower semantic score</strong> than gpt-4o-mini and a <strong>30.4% format-error rate</strong> on memory writes — which causes silent corruption of long-term memory. <strong>Route memory writes</strong> (extraction, summarization, graph-edge generation) to the 9B — or the Tier-2/Tier-3 box — and reserve the fast 4B for retrieval and answering. The <strong>sleep-time compute</strong> pattern (Letta) fits perfectly: a fast 4B answers in real time while a separate agent consolidates memory on the 9B during idle periods, off the latency path.</p></div>
+      <p><strong>Benchmark reality check.</strong> Mem0's 2026 public figures (≈92.5 LoCoMo, ≈94.4 LongMemEval) are <strong>vendor-run and likely optimistic</strong> — peer surveys document benchmark <em>saturation</em> (many question sets now fit inside a 128K context, so they no longer test memory) and heavy judge sensitivity. MemPalace's viral "100% LongMemEval" required Claude-Haiku reranking (<em>not</em> zero-API); its honest fully-local recall was 96.6%. <strong>Discount any &gt;90% agent-memory claim</strong> unless it's held-out and judge-robust.</p>
+      <div class="callout callout--note"><div class="ctag">📝 Note · fully-local cross-agent memory + MCP transport</div><p>Two current MCP options run fully local: <strong>Mem0's OpenMemory MCP</strong> (write in one client, read in another) and <strong>doobidoo/mcp-memory-service</strong> (now v11.x, sqlite-vec — actually <em>lighter</em> than Qdrant since there's no separate vector daemon — with a consolidation+forgetting engine). MCP's <strong>HTTP+SSE transport is deprecated</strong> in favor of <strong>Streamable HTTP</strong> (use stdio locally). Note: the widely-cited "hard cutoff June 30 2026" is <em>Atlassian's</em> vendor deadline, <strong>not</strong> a spec-wide date.</p></div>
+
+      <h3>G · Security — refresh the section, the threat class moved</h3>
+      <p><strong>The two cited CVEs check out</strong> (CVE-2024-37032 Probllama → fixed 0.1.34; CVE-2026-7482 "Bleeding Llama", CVSS 9.1, an unauthenticated info-leak not RCE → fixed 0.17.1). But the dominant 2026 class is the <strong>GGUF-parser attack</strong> — memory-safety bugs in the shared <strong>llama.cpp/ggml</strong> parser that Ollama wraps: e.g. <strong>CVE-2026-33298</strong> (integer overflow in <code>ggml_nbytes()</code> → heap overflow, fixed llama.cpp b7824) and <strong>CVE-2025-49847</strong> (vocab buffer overflow, fixed b5662). The exploit fires during the <em>parse</em>, before any inference runs — <strong>loading a malicious GGUF is enough.</strong></p>
+      <div class="callout callout--note"><div class="ctag">🔒 Security · the refreshed hardening checklist</div><p><strong>Models:</strong> pull only from the official Ollama library or a verified HF org (never a random mirror); verify SHA256 for sensitive setups; track the embedded <strong>llama.cpp build number</strong>, not just the Ollama version. <strong>Qdrant:</strong> <strong>CVE-2026-25628</strong> (CVSS 8.5) — the unauthenticated <code>/logger</code> endpoint allows arbitrary file write in ≤ 1.15.5; upgrade to <strong>≥ 1.15.6</strong>, bind localhost/tailnet-only, set an API key + master key, don't expose the Web UI. <strong>Tier-2 vLLM:</strong> keep patched, never enable <code>trust_remote_code</code> on a remote model (CVE-2026-27893, fixed 0.18.0), never expose the API unauthenticated even over Tailscale (CVE-2026-22778, CVSS 9.8). <strong>Poisoned chat templates</strong> (Jinja2 RCE: SGLang CVE-2026-5760, CVSS 9.8) — Ollama's Go templates are less exposed, but the Tier-2 engine isn't.</p></div>
+      <div class="callout callout--gotcha"><div class="ctag">🔒 Top 2026 risk · memory poisoning is now formal (OWASP ASI06)</div><p>OWASP shipped a dedicated <strong>Top 10 for Agentic Applications</strong> (released Dec 2025; ASI01–ASI10) — Memory &amp; Context Poisoning is <strong>ASI06</strong>, and your multi-agent design also touches ASI02 (Tool Misuse) and ASI07 (Insecure Inter-Agent Comms). <strong>MINJA</strong> (arXiv 2503.03704) reaches &gt;98% memory-injection success using <em>only</em> normal user queries — it never writes to the DB directly, it tricks the agent into storing the poison, then a benign query later triggers it. Even a fully-local, no-inbound store is exploitable if it ingests any web/RAG content. Cheap local wins: <strong>tag every memory write with its source</strong>, scope retrieval by trust level, and <strong>never treat retrieved text as an instruction.</strong></p></div>
+      <p><strong>Prompt-injection <em>defenses</em> you can run locally — two are now SOTA and both fit 16 GB.</strong> <strong>CaMeL</strong> ("Defeating Prompt Injections by Design", arXiv 2503.18813, DeepMind): a dual-LLM split where a privileged planner sees only trusted instructions and a quarantined LLM reads untrusted content, tool calls gated by capability — solves 77% of AgentDojo tasks <em>with provable security</em> at ~2.7× token cost (free on a local box). The pattern even without the full framework: <strong>separate the agent that plans/acts from the one that reads web/RAG content.</strong> <strong>Qwen3Guard</strong> (Apache-2.0, same family as your base model): 0.6B/4B/8B, 119 languages, Gen + Stream variants — the 0.6B (~0.4–0.5 GB Q4, estimate) runs alongside <code>qwen3.5:4b</code> as an input/output moderator with negligible footprint. NSA + Five Eyes also published formal <strong>MCP hardening guidance</strong> (May 2026): scope each server's tools narrowly, only install servers whose source you've read, never auto-trust a dynamically discovered server (tool-poisoning / line-jumping hides instructions in tool <em>descriptions</em>).</p>
     </section>
 
     <!-- ===================== ROADMAP ===================== -->

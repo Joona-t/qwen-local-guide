@@ -5,6 +5,30 @@ Running log of defects found and fixes landed while building `index.html` from
 
 ---
 
+## ITER-005 — SOTA research expansion: "the moving frontier" section (2026-06-26)
+- **What:** Repo made public, and a new **"SOTA Update — the local-LLM landscape as of mid-2026"** section
+  added to both `source/qwen-local-guide.md` (source of truth) and `index.html` (interactive build). Seven
+  subsections A–G covering what shipped/changed since the original core: **A models** (gpt-oss-20b, Gemma 4,
+  Ministral-3, Granite 4.0; why `qwen3.5:4b/9b` is still the right pick — 3.6/3.7 have no small-dense tier;
+  best tool-caller vs best coder), **B engines** (Ollama v0.30.10, the honest MLX-vs-llama.cpp tradeoff on
+  16GB, speculative decoding, engine matrix, vLLM-on-Apple-Silicon), **C quantization** (Unsloth Dynamic,
+  IQ4_XS, MLX DWQ, asymmetric KV, QAT/BitNet, the thinking-mode quality cliff), **D embeddings & rerankers**
+  (switch default to Qwen3-Embedding-0.6B; add a reranker — the guide had none), **E RAG** (hybrid+rerank+
+  Contextual Retrieval as the new default; graph/agentic/ColPali escalations; RAGAS), **F agentic memory**
+  (four camps, "your local model is the bottleneck", sleep-time compute, benchmark-saturation skepticism,
+  MCP transport), **G security** (refreshed CVEs, the GGUF-parser attack class, poisoned chat templates,
+  Qdrant CVE-2026-25628, OWASP ASI06, MINJA, CaMeL + Qwen3Guard defenses).
+- **Method:** 7-dimension multi-agent research Workflow (one finder + one adversarial skeptic per dimension,
+  14 agents, ~1.06M tokens), each load-bearing claim re-verified via live web search against primary sources.
+  All skeptic corrections applied before writing (e.g. Ministral-3 is Dec 2025 not Jan 2026; gpt-oss-20b GPQA
+  is 66.0/71.5 not 58.59; Qwen3.5 ships official GPTQ-Int4 but AWQ is community-only; the MCP SSE "June 30
+  cutoff" is Atlassian-specific not spec-wide; Ollama rerank PR #7219 was closed not pending; Qdrant fix is
+  ≥1.15.6). Estimates labelled as estimates; unverified figures flagged inline.
+- **Verification:** HTML tags balanced (22 div / 7 h3 / 4 spec cards / 8 callouts all matched), section +
+  nav link render with zero console errors, reuses only existing house-style CSS classes (kicker/lead/
+  callout/ctag/code/specgrid/spec). Headless preview can't screenshot it (viewport-height-0 + reveal-anim
+  quirk), so verified structurally via DOM reads.
+
 ## ITER-004 — Candy glass-sticker re-skin from the real apps (2026-06-18)
 - **What:** ITER-003's dark-plum look was still off — it came from the `sparky-agent` *doc*, not the actual
   apps. Studied how the **Tongue** (`Theme.swift`) and **Sparky** (`Colors.swift`) apps are really built and
