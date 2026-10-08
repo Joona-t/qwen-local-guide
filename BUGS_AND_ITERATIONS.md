@@ -5,6 +5,40 @@ Running log of defects found and fixes landed while building `index.html` from
 
 ---
 
+## ITER-006 — October 2026 fact refresh (2026-10-08)
+- **What:** The June "SOTA update" was stale four months on (Ollama stamped v0.30.10; Oct 7 is v0.40.1) and had
+  never merged to `main`. Re-checked every load-bearing claim on **primary sources** (release pages, vendor pages,
+  advisories, the MCP spec) via three parallel research scouts + my own re-fetch of each claim I printed. Fixed
+  stale statements **in place** in both `source/qwen-local-guide.md` and `index.html`, and added a dated
+  "October 2026 refresh" ledger (June-said → verified-now table) at the top of the SOTA section.
+- **Corrected:** Ollama v0.30.10→**v0.40.1** (MLX now default runner on Apple Silicon since v0.40.0); LM Studio
+  v0.4.17→**1.1.7**; Qwen3.8 exists (27B + 2.4T-A95B, still no ≤14B tier); gpt-oss-20b **14 GB** on Ollama (not
+  ~12–13); Gemma 4 12B **7.7–8.0 GB** (6.6 was the e4b); Granite now **granite4.2** (dense); **EmbeddingGemma 2**
+  (8K ctx, Apache-2.0); Qdrant **1.19** (`memory` param, Turbo4, legacy `/search` removed) + advisory
+  GHSA-3gph-6c29-p29v; mcp-memory-service pin **≥ v11.15.0**; **MCP spec 2026-07-28** (stateless).
+- **Security:** "Ollama ≥ 0.17.1" is no longer a safe-floor statement — it fixed CVE-2026-7482 only. Added
+  CERT/CC VU#518910 / CVE-2026-5757 (GGUF quantization heap leak; "no patch available" as of its 2026-04-22
+  revision, current status **unverified**) as a third CVE card. New advice everywhere: latest Ollama + loopback only.
+- **M4 speed (the guide's standing caveat):** still no direct Qwen3.5 measurement on a verified base M4 16GB, but
+  now there are dense proxies (llama.cpp #4167: 7B Q4_0 tg128 = 24.11 t/s base M4; May 2026 Mac-mini-M4 comment:
+  3B 45.95 / 7B 22.60 t/s) implying ~77–88% of the 120 GB/s peak. Planning ranges tightened: **4B ~25–35**
+  (was 30–40+), **9B ~13–18** (was 15–30). Derivation is arithmetic, labelled as such; caveat retained.
+- **Integrity calls (what did NOT make it in as fact):** the mcp-remote CVEs (CVE-2026-51997/51994) are absent from
+  the repo's own advisory page → labelled "secondary sources only"; llama.cpp UAF CVEs and MTP-on-Metal slowdowns
+  → "reported, not M4"; blog tok/s figures and Qwen4 → not used / "reported". A "Not re-verified this pass" list
+  is printed in the guide. One scout claim (mcp-remote fixed version) needed a second source; MCP/Qdrant/EmbeddingGemma/
+  gpt-oss/Ollama/mcp-memory-service claims were each re-fetched from the primary page before being printed.
+- **Verification:** both patch scripts asserted exactly-one-match per replacement; tag balance (div 180/180,
+  details 3/3); live render: calculators unchanged (120÷6.6→~18, 4B→~35, 0.95⁸→~66%), 11-row ledger table, 3 CVE
+  cards, zero console errors, 360px layout OK (table scrolls inside its wrapper only).
+
+### BUG-012 — Page scrolled sideways on wide viewports (2026-10-08)
+- **Symptom:** `document.scrollWidth` 1134 > viewport 1024 — a horizontal scrollbar on the whole page.
+- **Root cause:** the hidden glossary tooltips (`.gloss .pop`, 280px, absolutely positioned) near the right edge
+  still extend scrollable overflow even with `visibility:hidden`. Pre-existing since the glossary shipped.
+- **Fix:** `html,body{overflow-x:clip}` (not `hidden` — keeps the sticky TOC working). Verified: 1134→1024, TOC still
+  sticky, tooltips still open.
+
 ## ITER-005 — SOTA research expansion: "the moving frontier" section (2026-06-26)
 - **What:** Repo made public, and a new **"SOTA Update — the local-LLM landscape as of mid-2026"** section
   added to both `source/qwen-local-guide.md` (source of truth) and `index.html` (interactive build). Seven
