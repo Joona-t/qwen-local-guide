@@ -28,6 +28,15 @@ Just open **`index.html`** in any browser — double-click it, or drag it onto a
   a **hardening checklist**, a **commands cheat-sheet**, and **glossary tooltips**.
 - **Every caveat preserved** — all five formal caveats get a first-class section, and inline gotchas/tensions
   sit next to the relevant numbers. Estimates are always labelled as estimates.
+- **A "SOTA update — what changed since this guide" section** — the moving frontier as of mid-2026 (refreshed
+  Oct 2026: a ledger of corrected claims, current versions, a third CVE card, and tighter M4 speed ranges), in seven
+  subsections (A–G): newer-than-Qwen3.5 models that still fit 16 GB (gpt-oss-20b, Gemma 4, Ministral 3,
+  Granite 4.0); the honest MLX-vs-llama.cpp tradeoff + speculative decoding; quantization past Q4_K_M (Unsloth
+  Dynamic, IQ4_XS, MLX DWQ, the thinking-mode quality cliff); switching the embedder default to
+  Qwen3-Embedding-0.6B and **adding a reranker**; the hybrid → rerank → Contextual-Retrieval RAG stack; the
+  2026 agentic-memory landscape; and a refreshed security section (the GGUF-parser CVE class, OWASP ASI06,
+  MINJA, and local prompt-injection defenses like CaMeL + Qwen3Guard). Every figure was multi-agent-researched
+  and adversarially fact-checked against primary sources; estimates stay labelled.
 
 ## Accessibility
 
@@ -48,7 +57,8 @@ re-author the markup and re-run the base64 inlining of:
 - `…/lib/fonts/opendyslexic-{regular,bold}.woff2` (OpenDyslexic)
 - `Claude x LoveSpark/assets/mascot.png` (Sparky)
 
-The technical content is dated **mid-2026** (matching the source). Fast-moving facts (Ollama version pins,
+The technical content is dated **mid-2026, refreshed October 2026** (matching the source) — the top of the SOTA
+section carries a dated "what changed since June" ledger with a verified / reported / not-re-verified split. Fast-moving facts (Ollama version pins,
 CVEs, Mem0/MCP transport churn, Qwen tags) live as plain editable content, not baked into the JS — edit the
 HTML directly to update them.
 
